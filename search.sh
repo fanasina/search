@@ -41,7 +41,15 @@ find_name(){
       echo "erreur mot vide après -m"
       exit 1
     else
-      result=$(grep -rl$i$E $g "$name" "$res_file" 2>/dev/null)
+      if [ -z "$file" ] ; then
+        result=$(grep -rl$i$E $g "$name" "$res_file" 2>/dev/null)
+      else
+        for file_r in $res_file;
+        do
+         result+=" $(grep -l$i$E $g "$name" "$file_r" 2>/dev/null)"
+        done
+      #echo "result: $result"
+      fi
     fi
   else
     result=$res_file
@@ -80,15 +88,15 @@ usage(){
   echo "  -h : pour afficher l'aide"
   echo "  -i : pour ignorer la case"
   echo "  -l : pour afficher la liste des chemin simplement"
-  echo "  -e : open file with vim (by default/without : less )"
   echo "  -g [option]: les options possible pour grep"
   echo "  -n : pour ne pas afficher le resultat mais seulement le nombre"
   echo "  -m [MOT]: pour specifier le mot à cherché dans les fichiers"
   echo "  -f [NOM]: pour specifier le nom de fichier ou dossier à cherché"
   echo "  -d [DIR]: pour specifier le nom du dossier où ou fait la recherche"
-  echo "  -o [NUM]: pour afficher le fichier 'NUM'-ieme du résultat" 
+  echo "  -o [NUM]: pour afficher le fichier 'NUM'-ieme du résultat, avec less"
+  echo "  -e [NUM]: comme -o, mais ouvre avec vim"
   echo "EXEMPLE"
-  echo "`basename $0` -a 2 -d "'$HOME'" -m hello"
+  echo "`basename $0` -o 2 -d "'$HOME'" -m hello"
   echo " pour chercher les fichiers contenant 'hello' et ouvre le 2ieme fichier dans la liste"
   
   exit 0
@@ -124,13 +132,15 @@ _main() {
     case "$X" in
       (-h)        usage        ;; 
       (-i)        i="i"   ;; 
+      (-l)        l="l"   ;; 
       (-g)        g="$1" ;shift 1 ;; 
       (-n)        non_verb=1 ;; 
       (-m)        m=1; name="$1";shift 1 ;; 
       (-E)        E="E"; name="$1" ;shift 1 ;; 
       (-f)        file="$1" ;shift 1 ;; 
       (-d)        DIR="$1" ; shift 1 ;; 
-      (-o)        num_file_to_open="$1" ;; 
+      (-o)        num_file_to_open="$1"; shift 1 ;; 
+      (-e)        e=1; num_file_to_open="$1" ; shift 1   ;; 
       (*)         echo "Unknown command: $X" ;;
       esac
   done
