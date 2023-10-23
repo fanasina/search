@@ -1,5 +1,5 @@
 # search
-little script to find file or word in files (combine grep and find !)
+small script to search for files containing words in a directory  (combine grep and find !)
 
 ```
 ./search.sh -h
